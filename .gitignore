@@ -1,0 +1,8 @@
+*.ipynb
+*.txt
+*.json
+*.pyc
+
+*.png
+*.pdf
+*.eps
