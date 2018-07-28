@@ -8,3 +8,15 @@ def expand(X):
 
 def classify(X, w):
     return 1. / (1. + np.exp(- expand(X).dot(w)))
+
+
+def compute_loss(X, y, w):
+    p = classify(X, w)
+    return -np.mean(y * np.log(p) + (1 - y) * np.log(1 - p))
+
+
+def compute_grad(X, y, w):
+    first = (y * classify(X, w) * np.exp(-expand(X).dot(w))).dot(-expand(X))
+    second = ((1 - y) * classify(X, w)).dot(-expand(X))
+    return (first - second) / len(y)
+
