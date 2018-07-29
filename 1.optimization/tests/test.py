@@ -5,6 +5,7 @@ from optimize.helpers import expand
 from optimize.helpers import classify
 from optimize.helpers import compute_loss
 from optimize.helpers import compute_grad
+from optimize.helpers import visualize
 
 
 class Test(unittest.TestCase):
@@ -67,3 +68,9 @@ class Test(unittest.TestCase):
             "gradients are wrong"
         assert np.allclose(dummy_grads, dummy_grads_ans, 1e-3), \
             "gradients are off by a coefficient"
+
+    def test_visualization(self):
+        dummy_X = np.array([[0, 0], [1, 0], [2.61, -1.28], [-0.59, 2.1]])
+        dummy_y = np.array([0, 1, 0, 1])
+        dummy_weights = np.linspace(-1, 1, 6)
+        visualize(dummy_X, dummy_y, dummy_weights, [1, 0.5, 0.25])
