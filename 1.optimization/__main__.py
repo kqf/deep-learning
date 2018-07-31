@@ -3,6 +3,7 @@ import matplotlib.pyplot as plt
 from sklearn import datasets, preprocessing
 
 from optimize.optimize import gradient_descend
+from optimize.optimize import momentum
 
 
 def data():
@@ -21,7 +22,8 @@ def data():
 
 def main():
     X, y = data()
-    gradient_descend(X, y)
+    # gradient_descend(X, y)
+    momentum(X, y)
 
 
 if __name__ == '__main__':
