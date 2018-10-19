@@ -6,3 +6,4 @@
 *.png
 *.pdf
 *.eps
+.python-version
