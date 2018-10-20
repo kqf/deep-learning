@@ -9,30 +9,21 @@ class NearestNeighbor(BaseEstimator, ClassifierMixin):
 
     def fit(self, X, y):
         if self.copy:
-            self.Xtr = X[:]
-            self.ytr = y[:]
+            self.X = X[:]
+            self.y = y[:]
             return self
 
-        self.Xtr = X
-        self.ytr = y
+        self.X = X
+        self.y = y
         return self
 
     def predict(self, X):
-        num_test = X.shape[0]
-        # Ensure output type
-        Ypred = np.zeros(num_test, dtype=self.ytr.dtype)
+        distances = self.dist(self.X.T[:, :, np.newaxis], X.T[:, np.newaxis])
+        y_pred = self.y[np.argmin(distances, axis=0)]
+        return y_pred
 
-        # loop over all test rows
-        for i in range(num_test):
-            distances = self.distance(X[i, :])
-            # get the index with smallest distance
-            min_index = np.argmin(distances)
-            # predict the label of the nearest example
-            Ypred[i] = self.ytr[min_index]
-        return Ypred
-
-    def distance(self, X_vec):
-        summed = np.sum(np.abs(self.Xtr - X_vec) ** self.p, axis=1)
+    def dist(self, x1, x2, axis=0):
+        summed = np.sum(np.abs(x1 - x2) ** self.p, axis=axis)
         # It's not necessary to have the correct absolute value
         return summed
         # return np.power(summed, 1 / self.p)
