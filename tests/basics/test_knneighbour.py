@@ -35,12 +35,12 @@ def test_simialr_distances(data):
 
 def test_timing(data):
     X_tr, X_te, y_tr, y_te = data
-    clf = KNearestNeighbor(n_loops=0).fit(X_tr, y_tr)
-    clf1 = KNearestNeighbor(n_loops=1).fit(X_tr, y_tr)
-    clf2 = KNearestNeighbor(n_loops=2).fit(X_tr, y_tr)
-    no_loops = time_function(clf.predict, X_te)
-    signle_loop = time_function(clf1.predict, X_te)
-    double_loop = time_function(clf2.predict, X_te)
+    no_loops = time_function(
+        KNearestNeighbor(n_loops=0).fit(X_tr, y_tr).predict, X_te)
+    signle_loop = time_function(
+        KNearestNeighbor(n_loops=1).fit(X_tr, y_tr).predict, X_te)
+    double_loop = time_function(
+        KNearestNeighbor(n_loops=2).fit(X_tr, y_tr).predict, X_te)
     msg = "Loops #0 = {:.4f}s, #1 = {:.4f}s, #2 = {:.4f}s"
     print()
     print(msg.format(no_loops, signle_loop, double_loop))

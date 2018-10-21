@@ -8,3 +8,5 @@
 *.eps
 .python-version
 .pytest_cache/
+
+misc
