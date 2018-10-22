@@ -5,7 +5,7 @@ from sklearn.base import ClassifierMixin, BaseEstimator
 class LinearClassifier(ClassifierMixin, BaseEstimator):
 
     def __init__(self, learning_rate=1e-3, reg=1e-5, num_iters=200,
-                 batch_size=200, verbose=False):
+                 batch_size=200, verbose=False, impl="vectorized"):
         self.learning_rate = learning_rate
         self.reg = reg
         self.num_iters = num_iters
@@ -13,6 +13,7 @@ class LinearClassifier(ClassifierMixin, BaseEstimator):
         self.verbose = verbose
         self.W = None
         self.loss_history_ = None
+        self.impl = impl
 
     def fit(self, X, y):
         num_train, dim = X.shape
