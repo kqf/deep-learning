@@ -6,17 +6,15 @@ from utils.time import time_function
 def test_softmax_naive(data):
     X_tr, X_te, y_tr, y_te = data
     clf = Softmax(impl="naive").fit(X_tr, y_tr)
-    assert clf.score(X_tr, y_tr) > 0.6
+    assert clf.score(X_tr, y_tr) > 0.5
 
 
-@pytest.mark.skip
 def test_softmax(data):
     X_tr, X_te, y_tr, y_te = data
     clf = Softmax().fit(X_tr, y_tr)
-    assert clf.score(X_tr, y_tr) > 0.6
+    assert clf.score(X_tr, y_tr) > 0.5
 
 
-@pytest.mark.skip
 def test_timing(data):
     X_tr, X_te, y_tr, y_te = data
 

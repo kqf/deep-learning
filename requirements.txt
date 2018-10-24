@@ -2,3 +2,4 @@ sklearn
 numpy
 pytest
 matplotlib
+ipdb
