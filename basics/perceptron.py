@@ -12,8 +12,8 @@ class Perceptron(BaseEstimator, ClassifierMixin):
     def __init__(self, hidden_size=10,
                  learning_rate=1e-3,
                  learning_rate_decay=0.95,
-                 reg=5e-6, num_iters=100,
-                 batch_size=10, verbose=False, std=1e-4):
+                 reg=5e-6, num_iters=1000,
+                 batch_size=10, verbose=True, std=1e-4):
         self.learning_rate = learning_rate
         self.learning_rate_decay = learning_rate_decay
         self.reg = reg
@@ -31,20 +31,51 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         N, D = X.shape
 
         # Compute the forward pass
-        scores = np.ones((N, self.output_size))
+        layer1 = np.dot(X, W1) + b1
+        layer1_relu = layer1 * (layer1 > 0)
+        layer2 = np.dot(layer1_relu, W2) + b2
+        layer2_relu = layer2 * (layer2 > 0)
+        scores = layer2_relu[:]
+        scores -= np.max(layer2_relu, axis=1)[:, np.newaxis]
 
         # If the targets are not given then jump out, we're done
         if y is None:
             return scores
 
         # Compute the loss
-        loss = np.inf
+        score_y = scores[np.arange(scores.shape[0]), y]
+        sum_exp_score = np.sum(np.exp(scores), axis=1)
+        losses = -score_y + np.log(sum_exp_score)
+        loss = np.mean(losses)
+        loss += self.reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
         # Backward pass: compute gradients
         grads = {
             key: np.zeros_like(value)
             for key, value in self.params.items()
         }
+
+        # import ipdb
+        # ipdb.set_trace()
+        probabilities = np.exp(score_y[:, np.newaxis]) / np.exp(scores)
+        dl_dscore = probabilities                                  # (N, C)
+        dl_dscore[np.arange(dl_dscore.shape[0]), y] -= 1
+        dl_dscore /= N                                             # (N, C)
+
+        dloss_dW2 = layer1_relu.T.dot(dl_dscore) + reg * W2        # (H, C)
+        dloss_db2 = np.ones([dl_dscore.shape[0]]).dot(dl_dscore)   # (C, )
+
+        # derivative of ReLU function
+        dl1_rlu = dl_dscore.dot(W2.T)                              # (N, H)
+        dl1_rlu[layer1_relu <= 0] = 0
+
+        dW1 = X.T.dot(dl1_rlu) + reg * W1                          # (D, H)
+        db1 = np.ones([dl1_rlu.shape[0]]).dot(dl1_rlu)             # (H, )
+
+        grads['W2'] = dloss_dW2
+        grads['b2'] = dloss_db2
+        grads['W1'] = dW1
+        grads['b1'] = db1
         return loss, grads
 
     def fit(self, X, y):
