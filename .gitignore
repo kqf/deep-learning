@@ -10,3 +10,5 @@
 .pytest_cache/
 
 misc
+*.sublime-project
+*.sublime-workspace
