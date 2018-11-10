@@ -23,9 +23,9 @@ def softmax_loss_naive(W, X, y, reg):
         sum_exp_score_i = np.sum(np.exp(scores))
         loss += -score_y_i + np.log(sum_exp_score_i)
 
-        dW_i = X[i][:, np.newaxis] * np.exp(scores)
-        dW_i[:, y[i]] = -(sum_exp_score_i - np.exp(score_y_i)) * X[i]
-        dW += dW_i / sum_exp_score_i
+        dW_i = X[i][:, np.newaxis] * np.exp(scores) / np.sum(np.exp(scores))
+        dW_i[:, y[i]] = -X[i]
+        dW += dW_i
     loss = (loss / num_train) + reg * np.sum(W * W)
     dW = (dW / num_train) + 2 * reg * W
     return loss, dW
@@ -41,9 +41,7 @@ def softmax_loss_vectorized(W, X, y, reg):
     loss = np.mean(-score_y + np.log(sum_exp_score)) + reg * np.sum(W * W)
 
     dW_i = X[:, :, np.newaxis] * np.exp(scores)[:, np.newaxis]
-
-    y_error = -(sum_exp_score - np.exp(score_y))[:, np.newaxis] * X
-    dW_i[np.arange(scores.shape[0]), :, y] = y_error
-    dW_i = dW_i / sum_exp_score[:, np.newaxis, np.newaxis]
+    dW_i /= sum_exp_score[:, np.newaxis, np.newaxis]
+    dW_i[np.arange(scores.shape[0]), :, y] = -X
     dW = np.zeros_like(W) + np.mean(dW_i, axis=0) + 2 * reg * W
     return loss, dW

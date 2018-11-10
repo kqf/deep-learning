@@ -4,7 +4,7 @@ from sklearn.base import ClassifierMixin, BaseEstimator
 
 class LinearClassifier(ClassifierMixin, BaseEstimator):
 
-    def __init__(self, learning_rate=1e-3, reg=1e-5, num_iters=200,
+    def __init__(self, learning_rate=1e-2, reg=1e-5, num_iters=200,
                  batch_size=200, verbose=False, impl="vectorized"):
         self.learning_rate = learning_rate
         self.reg = reg
