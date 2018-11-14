@@ -9,11 +9,11 @@ class Perceptron(BaseEstimator, ClassifierMixin):
     The outputs are the scores for each class.
     """
 
-    def __init__(self, hidden_size=10,
-                 learning_rate=1e-5,
+    def __init__(self, hidden_size=2,
+                 learning_rate=1e-2,
                  learning_rate_decay=0.95,
                  reg=5e-6, num_iters=1000,
-                 batch_size=10, verbose=True, std=1e-4):
+                 batch_size=10, verbose=False, std=1e-4):
         self.learning_rate = learning_rate
         self.learning_rate_decay = learning_rate_decay
         self.reg = reg
@@ -25,7 +25,6 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         self.params = {}
 
     def loss(self, X, y=None, reg=0.0):
-        # Unpack variables from the params dictionary
         W1, b1 = self.params['W1'], self.params['b1']
         W2, b2 = self.params['W2'], self.params['b2']
         N, D = X.shape
@@ -34,8 +33,7 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         layer1 = np.dot(X, W1) + b1
         layer1_relu = layer1 * (layer1 > 0)
         layer2 = np.dot(layer1_relu, W2) + b2
-        layer2_relu = layer2 * (layer2 > 0)
-        scores = layer2_relu
+        scores = layer2
 
         # If the targets are not given then jump out, we're done
         if y is None:
@@ -48,15 +46,9 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         loss = np.mean(losses) + self.reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
         # Backward pass: compute gradients
-        grads = {
-            key: np.zeros_like(value)
-            for key, value in self.params.items()
-        }
-
-        probabilities = np.exp(score_y[:, np.newaxis]) / np.exp(scores)
+        probabilities = np.exp(scores) / sum_exp_score[:, np.newaxis]
+        probabilities[np.arange(scores.shape[0]), y] -= 1
         dl_dscore = probabilities                                  # (N, C)
-        dl_dscore[np.arange(dl_dscore.shape[0]), y] -= 1
-        dl_dscore /= N                                             # (N, C)
 
         dloss_dW2 = layer1_relu.T.dot(dl_dscore) + 2 * reg * W2    # (H, C)
         dloss_db2 = np.ones([dl_dscore.shape[0]]).dot(dl_dscore)   # (C, )
@@ -68,6 +60,7 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         dW1 = X.T.dot(dl1_rlu) + 2 * reg * W1                      # (D, H)
         db1 = np.ones([dl1_rlu.shape[0]]).dot(dl1_rlu)             # (H, )
 
+        grads = {}
         grads['W2'] = dloss_dW2
         grads['b2'] = dloss_db2
         grads['W1'] = dW1
