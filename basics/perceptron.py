@@ -25,15 +25,18 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         self.params = {}
 
     def loss(self, X, y=None, reg=0.0):
-        W1, b1 = self.params['W1'], self.params['b1']
-        W2, b2 = self.params['W2'], self.params['b2']
+        W1 = self.params['W1']
+        b1 = self.params['b1']
+        W2 = self.params['W2']
+        b2 = self.params['b2']
         N, D = X.shape
 
         # Compute the forward pass
         layer1 = np.dot(X, W1) + b1
         layer1_relu = layer1 * (layer1 > 0)
         layer2 = np.dot(layer1_relu, W2) + b2
-        scores = layer2
+        scores = layer2[:]
+        scores -= np.max(scores)
 
         # If the targets are not given then jump out, we're done
         if y is None:
@@ -67,6 +70,15 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         grads['b1'] = db1
         return loss, grads
 
+    def _init_weights(self, n_features, n_classes):
+        self.params['W1'] = self.std * np.random.randn(n_features,
+                                                       self.hidden_size)
+        self.params['b1'] = np.random.randn(self.hidden_size)
+        self.params['W2'] = self.std * np.random.randn(self.hidden_size,
+                                                       n_classes)
+        self.params['b2'] = np.random.randn(n_classes)
+        return self
+
     def fit(self, X, y):
         num_train = X.shape[0]
         iterations_per_epoch = max(num_train / self.batch_size, 1)
@@ -75,13 +87,8 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         loss_history = []
         train_acc_history = []
 
-        D, C = X.shape[1], len(set(y))
-        self.params['W1'] = self.std * np.random.randn(D, self.hidden_size)
-        self.params['b1'] = np.random.randn(self.hidden_size)
-        self.params['W2'] = self.std * np.random.randn(self.hidden_size, C)
-        self.params['b2'] = np.random.randn(C)
-        self.output_size = C
-
+        D, C = X.shape[1], len(np.unique(y))
+        self._init_weights(n_features=D, n_classes=C)
         for it in range(self.num_iters):
             indices = np.random.choice(num_train, self.batch_size)
             X_batch = X[indices]

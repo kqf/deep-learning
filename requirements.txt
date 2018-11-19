@@ -3,3 +3,6 @@ numpy
 pytest
 matplotlib
 ipdb
+imageio
+keras
+tensorflow
