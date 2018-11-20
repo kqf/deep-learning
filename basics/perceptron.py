@@ -36,7 +36,7 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         layer1_relu = layer1 * (layer1 > 0)
         layer2 = np.dot(layer1_relu, W2) + b2
         scores = layer2[:]
-        scores -= np.max(scores)
+        scores -= np.max(scores, axis=1)[:, np.newaxis]
 
         # If the targets are not given then jump out, we're done
         if y is None:
@@ -46,7 +46,7 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         score_y = scores[np.arange(scores.shape[0]), y]
         sum_exp_score = np.sum(np.exp(scores), axis=1)
         losses = -score_y + np.log(sum_exp_score)
-        loss = np.mean(losses) + self.reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
+        loss = np.mean(losses) + reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
         # Backward pass: compute gradients
         probabilities = np.exp(scores) / sum_exp_score[:, np.newaxis]
@@ -117,6 +117,4 @@ class Perceptron(BaseEstimator, ClassifierMixin):
         return self
 
     def predict(self, X):
-        y_scores = self.loss(X)
-        y_pred = np.argmax(y_scores, axis=1)
-        return y_pred
+        return np.argmax(self.loss(X), axis=1)
